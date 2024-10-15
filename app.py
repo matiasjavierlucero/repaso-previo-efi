@@ -20,4 +20,7 @@ jwt = JWTManager(app)
 ma = Marshmallow(app)
 
 # Mueve la importación de los modelos aquí para evitar importaciones circulares
-from models import Marca, User, Vehiculo, Tipo
+from models import Marca, Vehiculo, Tipo, User
+
+from views import register_bp
+register_bp(app)

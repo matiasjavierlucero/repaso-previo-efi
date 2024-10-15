@@ -33,3 +33,10 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False)
     password_hash = db.Column(db.String(300), nullable=False)
     is_admin = db.Column(db.Boolean)
+
+
+    def to_dict(self):
+        return dict(
+            username=self.username,
+            password=self.password_hash
+        )
