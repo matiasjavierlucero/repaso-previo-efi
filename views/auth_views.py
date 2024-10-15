@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from flask_jwt_extended import (
     create_access_token,
     get_jwt,
@@ -13,6 +13,8 @@ from werkzeug.security import (
 
 from app import db
 from models import User
+from schemas import UserSchema, UserMinimalSchema
+
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -29,7 +31,7 @@ def login():
     ):
         access_token = create_access_token(
             identity=username,
-            expires_delta=timedelta(minutes=10),
+            expires_delta=timedelta(minutes=20),
             additional_claims=dict(
                 administrador=usuario.is_admin
             )
@@ -45,6 +47,7 @@ def login():
 def users():
     additional_data = get_jwt()
     administrador = additional_data.get('administrador')
+
     if request.method == 'POST':
         if administrador is True:
             data = request.get_json()
@@ -73,10 +76,9 @@ def users():
                 )
         else:
             return jsonify(Mensaje= "Solo el admin puede crear nuevos usuarios")
-
+    
     usuarios = User.query.all()
-    usuarios_dict = []
-    for usuario in usuarios:
-        usuarios_dict.append(usuario.to_dict())
-
-    return jsonify(usuarios_dict)
+    if administrador is True:
+        return UserSchema().dump(obj=usuarios, many=True)
+    else:
+        return UserMinimalSchema().dump(obj=usuarios, many=True)
